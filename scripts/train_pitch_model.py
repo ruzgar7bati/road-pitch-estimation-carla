@@ -277,9 +277,7 @@ def validate(model, loader, loss_fn, device):
     targets_all = []
     metadata_all = []
 
-    for images, targets, metadata in loader:
-        images = images.to(device, non_blocking=True)
-        targets = targets.to(device, non_blocking=True)
+   
 
         outputs = model(images)
         loss = loss_fn(outputs, targets)
