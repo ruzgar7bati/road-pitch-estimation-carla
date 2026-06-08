@@ -2,8 +2,8 @@
 
 Road pitch estimation and sensor fusion using semantic camera measurements, MobileNetV3 regression, IMU data, GNSS baseline estimation, and Kalman filtering.
 
-**EE4084 Project**
-Department of Electrical and Electronics Engineering
+**EE4084 Project**  
+Department of Electrical and Electronics Engineering  
 Marmara University
 
 **Authors**
@@ -49,20 +49,21 @@ The pipeline consists of:
 
 ```text
 scripts/
-├── 01_collect_pitch_dataset.py
-├── 02_train_pitch_model.py
-└── 05_run_kf_evaluation.py
++-- collect_pitch_dataset.py
++-- train_pitch_model.py
++-- run_pitch_kf_final_clean.py
 
 models/
-└── mobilenet_pitch_best.pth
++-- mobilenet_pitch_best.pth
 
-paper/
-└── final_paper.pdf
+Papers/
++-- Paper/Paper.pdf
 
 example_outputs/
-├── plots
-├── csv_logs
-└── error_summary
++-- all_sensors_pitch_comparison.png
++-- camera_pitch_comparison.png
++-- kf_pitch_comparison.png
++-- loss_curve.png
 ```
 
 ## Setup
@@ -72,6 +73,8 @@ example_outputs/
 Download and run CARLA:
 
 https://github.com/carla-simulator/carla/releases
+
+CARLA must be running before dataset collection or sensor-fusion evaluation. The scripts connect to `127.0.0.1:2000`.
 
 ### 2. Create Python Environment
 
@@ -84,10 +87,12 @@ Activate the environment.
 ### 3. Install Dependencies
 
 ```bash
-pip install torch torchvision opencv-python numpy matplotlib pillow
+pip install -r requirements.txt
 ```
 
-Install the CARLA Python API compatible with CARLA 0.9.16.
+The `requirements.txt` file includes a local CARLA wheel path used during development. If your CARLA installation is in a different location, update that path or install the CARLA 0.9.16 Python API wheel manually.
+
+See `docs/setup.md` for setup notes and `docs/scripts.md` for script settings and file-location details.
 
 ## Workflow
 
@@ -110,7 +115,7 @@ Trains the MobileNetV3 pitch regression model.
 ### Run Sensor Fusion Evaluation
 
 ```bash
-python scripts/run_kf_evaluation.py
+python scripts/run_pitch_kf_final_clean.py --model-path models/mobilenet_pitch_best.pth
 ```
 
 Runs live pitch estimation using:

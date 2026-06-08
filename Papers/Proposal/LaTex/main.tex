@@ -1,0 +1,151 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{cite}
+
+\definecolor{marmara_blue}{RGB}{0, 51, 102}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small EE4084: Project Proposal}
+\rhead{\small Spring 2026}
+\cfoot{\thepage}
+
+\begin{document}
+
+\begin{center}
+    \textbf{MARMARA UNIVERSITY} \\
+    Faculty of Engineering | Dept. of Electrical and Electronics Engineering \\
+    \vspace{1em}
+    {\huge \textcolor{marmara_blue}{\textbf{Project Proposal Form}}} \\
+    \vspace{0.5em}
+    \large \textbf{Courses:} EE4084 - Kalman and Bayesian Filters \\ 
+    \vspace{0.5em}
+    \textbf{Prepared By:} Alperen Tufan Pelit |
+    Rüzgar Batı Okay
+    
+    \textbf{Submission Deadline:} 22/04/2026 @ 23:55
+\end{center}
+
+\hrule \vspace{1.5em}
+
+\section{Project Identity}
+\textbf{Proposed Title:} Autonomous Vehicle Tracking and State Estimation via Sensor Fusion using CARLA Simulator \\
+
+\section{Motivation \& Problem Statement}
+Accurate road slope (pitch) estimation is critical for the longitudinal control of autonomous vehicles. While deep learning offers data-driven solutions, it acts as a "black box" lacking mathematical interpretability. To establish a robust, model-based framework, this project proposes fusing IMU and monocular camera data.\\
+
+Since IMU data suffers from accumulating drift and cameras from visual noise, a probabilistic approach is essential. Furthermore, vehicle kinematics and camera-to-world projection geometries are highly nonlinear. Standard linear assumptions fail in such practical tracking scenarios, strictly require robust Bayesian frameworks \cite{pf_tutorial_2002}. Because basic linearization of these highly nonlinear transformations can cause severe estimation errors and filter divergence \cite{Julier:pIEEE04}, employing advanced Bayesian estimation (such as EKF) is critical.\\
+
+In our proposed architecture, high-frequency IMU data dynamically predicts the vehicle state, while road pitch angles, geometrically derived from camera-extracted vanishing horizon points, provide iterative measurement updates to correct the drift. The CARLA simulator will supply both realistic noisy sensor measurements and absolute ground-truth data via GPS sensor for precise quantitative validation.
+
+\section{Mathematical Framework}
+
+\subsection{Process and Measurement Models}
+
+The state vector $x_k$ describes the vehicle's road pitch angle $\theta$ and pitch rate $\dot{\theta}$ at time step $k$:
+\begin{equation}
+x_k = \begin{bmatrix} \theta & \dot{\theta} \end{bmatrix}^\top
+\end{equation}
+
+\begin{itemize}
+    \item \textbf{Evolution:} The state evolves according to a kinematic model where high-frequency IMU data acts as the control input $u_{k-1}$ for the prediction step:
+    \begin{equation}
+    x_k = f(x_{k-1}, u_{k-1}) + w_{k-1}, \quad w_k \sim \mathcal{N}(0, Q)
+    \end{equation}
+    
+    \item \textbf{Observation:} The measurement $z_k$ is the pitch angle extracted geometrically from the vanishing point of lane lines in the camera frame:
+    \begin{equation}
+    z_k = h(x_k) + v_k, \quad v_k \sim \mathcal{N}(0, R)
+    \end{equation}
+\end{itemize}
+
+\subsection{Extended Kalman Filter Recursion}
+
+Since $f(\cdot)$ and $h(\cdot)$ are nonlinear, the EKF linearizes them using the Jacobian $F_k = \left. \frac{\partial f}{\partial x} \right|_{x=\hat{x}_{k-1|k-1}}$ at each step. The filter runs in two steps:\\
+\\
+
+
+\textbf{Predict:}
+\begin{equation}
+\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_{k-1})
+\end{equation}
+\begin{equation}
+P_{k|k-1} = F_k P_{k-1|k-1} F_k^\top + Q
+\end{equation}
+
+\textbf{Update:}
+\begin{equation}
+K_k = P_{k|k-1} H_k^\top (H_k P_{k|k-1} H_k^\top + R)^{-1}
+\end{equation}
+\begin{equation}
+\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_k (z_k - h(\hat{x}_{k|k-1}))
+\end{equation}
+\begin{equation}
+P_{k|k} = (I - K_k H_k) P_{k|k-1}
+\end{equation}
+
+where $H_k = \left. \frac{\partial h}{\partial x} \right|_{x=\hat{x}_{k|k-1}}$ is the observation Jacobian and $K_k$ is the Kalman Gain.
+
+\section{Data Acquisition and Generation Strategy}
+
+\begin{itemize}
+    \item \textbf{Ground Truth Generation:} True vehicle pitch states $x_{0:K}$ are taken directly from CARLA. The simulator outputs precise rotation data at each time step through its Python API to be used as the reference.
+    
+    \item \textbf{Measurement Simulation:} Camera measurements $z_{1:K}$ (pitch angle) and IMU control inputs $u_{1:K}$ (pitch rate) are created by adding Gaussian noise to the true CARLA sensor outputs. The camera sampling frequency is $f_s = 20$ Hz with a target SNR of $20$ dB. Visual outliers and random signal dropouts are added to the camera data to simulate real-world conditions such as temporary lane occlusions or lighting glare.
+    
+    \item \textbf{External Datasets:} No external dataset is needed. CARLA provides all required high-fidelity data to simulate both IMU and monocular camera streams for road pitch estimation.
+\end{itemize}
+  
+
+\section{Algorithmic Approach \& Software Strategy}
+
+\textbf{Filter Choice \& Explanation:}\\
+We employ the Extended Kalman Filter (EKF). The system's IMU-driven kinematics and camera-based vanishing point geometry are inherently nonlinear. While UKF or Particle Filters handle non-linearities well, they add unnecessary computational overhead for our focused, low-dimensional state vector ($x_k = [\theta, \dot{\theta}]^\top$). The EKF provides the optimal balance, ensuring real-time efficiency for sensor fusion via Jacobian linearization without sacrificing mathematical rigor.
+
+\vspace{0.3cm}
+\textbf{Software Strategy \& Libraries:}\\
+The project will be developed in Python to integrate with the simulation environment. Primary tools are as follows:
+\begin{itemize}
+    \item \textbf{CARLA Python API:} For environment setup and acquiring asynchronous IMU, camera, and absolute ground-truth data.
+    \item \textbf{NumPy:} To execute fast matrix operations, compute Jacobians, and manage EKF state updates.
+    \item \textbf{OpenCV:} To perform traditional computer vision tasks (e.g., edge detection, Hough transforms) to extract the vanishing point geometrically, strictly avoiding deep learning models.
+    \item \textbf{Matplotlib:} For visualizing filter convergence, IMU drift correction, and computing the RMSE against the ground truth.
+\end{itemize}
+
+\section{Milestones}
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lp{12cm}}
+\hline
+\textbf{Week} & \textbf{Primary Objective} \\
+\hline
+W1-2 & Mathematical derivation of the IMU-kinematic and Camera-geometric models, and formulation of EKF Jacobians. \\
+W3-5 & CARLA environment setup, OpenCV vanishing point algorithm development, and core EKF Python implementation. \\
+W6-7 & Monte Carlo analysis (RMSE/NEES), sensor dropout simulations, and final reporting. \\
+\hline
+\end{tabular}
+\end{table}
+\vspace{1em}
+\begin{flushright}
+    \begin{tabular}{c}
+        \hline
+        \textbf{Instructor Approval} \\
+        \textit{Prof. Dr. Engin Masazade}
+    \end{tabular}
+\end{flushright}
+
+\newpage
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}
