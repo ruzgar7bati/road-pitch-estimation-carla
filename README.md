@@ -48,22 +48,28 @@ The pipeline consists of:
 ## Project Structure
 
 ```text
-scripts/
-+-- collect_pitch_dataset.py
-+-- train_pitch_model.py
-+-- run_pitch_kf_final_clean.py
-
-models/
-+-- mobilenet_pitch_best.pth
-
-Papers/
-+-- Paper/Paper.pdf
-
-example_outputs/
-+-- all_sensors_pitch_comparison.png
-+-- camera_pitch_comparison.png
-+-- kf_pitch_comparison.png
-+-- loss_curve.png
+road-pitch-estimation-carla/
+├── README.md
+├── requirements.txt
+├── docs/
+│   ├── README.md
+│   ├── setup.md
+│   └── scripts.md
+├── scripts/
+│   ├── collect_pitch_dataset.py
+│   ├── train_pitch_model.py
+│   └── run_pitch_kf_final_clean.py
+├── models/
+│   └── mobilenet_pitch_best.pth
+├── example_outputs/
+│   ├── all_sensors_pitch_comparison.png
+│   ├── camera_pitch_comparison.png
+│   ├── kf_pitch_comparison.png
+│   └── loss_curve.png
+└── Papers/
+    ├── Paper/
+    ├── Presentation/
+    └── Proposal/
 ```
 
 ## Setup
