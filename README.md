@@ -65,7 +65,8 @@ road-pitch-estimation-carla/
 │   ├── all_sensors_pitch_comparison.png
 │   ├── camera_pitch_comparison.png
 │   ├── kf_pitch_comparison.png
-│   └── loss_curve.png
+│   ├── loss_curve.png
+│   └── ..................
 └── Papers/
     ├── Paper/
     ├── Presentation/
