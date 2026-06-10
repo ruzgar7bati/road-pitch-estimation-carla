@@ -18,6 +18,23 @@
 
 \title{Road Pitch Estimation and Sensor Fusion in CARLA Using Semantic Camera Measurements}
 
+\author{
+\IEEEauthorblockN{Rüzgar Batı Okay}
+\IEEEauthorblockA{
+Department of Electrical and Electronics Engineering\\
+Marmara University\\
+Istanbul, Türkiye\\
+ruzgarbatiokay25072003@gmail.com
+}
+\and
+\IEEEauthorblockN{Alperen Tufan Pelit}
+\IEEEauthorblockA{
+Department of Electrical and Electronics Engineering\\
+Marmara University\\
+Istanbul, Türkiye\\
+pelitalperentufan@gmail.com
+}
+}
 
 \maketitle
 
@@ -272,6 +289,9 @@ In practical applications, camera measurements may be affected by unseen road ge
 This work presented a CARLA 0.9.16-based road pitch estimation pipeline using semantic camera measurements, IMU gyroscope input, GNSS baseline comparison, and Kalman Filter fusion. A MobileNet regression model was trained on semantic road and road-line masks to estimate pitch from road geometry. The camera model produced stable pitch estimates in the evaluated CARLA route and remained available even when GNSS-derived pitch was unavailable during stationary periods. Although the camera estimator achieved very low errors under the controlled simulation conditions, the Kalman Filter architecture provides a foundation for incorporating additional sensor information and improving robustness in more challenging environments. The final KF framework uses IMU gyroscope pitch rate for prediction and camera model output for measurement correction. The results demonstrate that the proposed simulation pipeline can estimate road pitch accurately under the tested CARLA route while keeping the system structure simple and interpretable.
 
 \section{Acknowledgment}
+The authors would like to thank Prof. Dr. Engin Masazade
+for guidance and feedback during the project.\\
+
 During the preparation of this manuscript, the authors used ChatGPT-5.5 solely for editing and grammatical enhancement to improve text readability. The authors reviewed all modifications and assume full responsibility for the final content.
 \bibliographystyle{IEEEtran}
 \bibliography{references}
